@@ -10,6 +10,7 @@ using CapeCode.DependencyInjection.Interfaces;
 using CapeCode.Logging.Emails.Interfaces;
 using CapeCode.Logging.Interfaces;
 using CapeCode.ExtensionMethods;
+using System.ComponentModel;
 
 namespace CapeCode.Logging.Emails {
     [InjectAsNewInstancePerResolve]
@@ -112,6 +113,12 @@ namespace CapeCode.Logging.Emails {
         }
 
         private void SendMailMessages( IEnumerable<MailMessage> mailMessages ) {
+            if ( !TrySendMailMessages( mailMessages ) ) {
+                TrySendMailMessages( mailMessages, true );
+            }
+        }
+
+        private bool TrySendMailMessages( IEnumerable<MailMessage> mailMessages, bool isRetry = false ) {
             if ( string.IsNullOrEmpty( this.EmailSenderConfiguration.SmtpServerAddress ) ) {
                 throw new ArgumentException( "SmtpServerAddress is not set", "EmailSenderConfiguration.SmtpServerAddress" );
             }
@@ -135,10 +142,15 @@ namespace CapeCode.Logging.Emails {
                     innerMostException = innerMostException.InnerException;
                 }
 
-                throw new EmailSenderException( "Email delivery failed because of an SMTP server error: " + innerMostException.Message, e );
+                if ( innerMostException is Win32Exception && !isRetry ) {
+                    return false;
+                } else {
+                    throw new EmailSenderException( "Email delivery failed because of an SMTP server error: " + innerMostException.Message, e );
+                }
             } catch ( Exception e ) {
                 throw new EmailSenderException( "Email delivery failed because of an unexpected error: " + e.Message, e );
             }
+            return true;
         }
 
         protected virtual void SendSmtpMailMessages( SmtpClient client, MailMessage mailMessage ) {
