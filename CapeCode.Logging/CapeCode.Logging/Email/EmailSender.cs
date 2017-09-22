@@ -52,7 +52,7 @@ namespace CapeCode.Logging.Emails {
         }
 
         public void SendEncryptedEmail( EncryptedEmail encryptedEmail ) {
-            Logger.LogTrace( "SendEncryptedEmail", "Sending {0}", encryptedEmail.ToString() );
+            Logger.LogTrace( $"Sending {encryptedEmail.ToString()}" );
 
             if ( EmailSenderConfiguration.IsDisabled ) {
                 // used in unit-tests to prevent mass email sending...
@@ -61,7 +61,7 @@ namespace CapeCode.Logging.Emails {
 
             IList<MailMessage> mailMessages;
             if ( EmailSenderConfiguration.InSimulationMode ) {
-                Logger.LogWarning( "SendMail", "InSimulation Mode -> Changing Recipients: {0}", EmailSenderConfiguration.AdministratorEmailAddresses.ToSeparatedString( a => a ) );
+                Logger.LogWarning( $"InSimulation Mode -> Changing Recipients: {EmailSenderConfiguration.AdministratorEmailAddresses.ToSeparatedString( a => a )}" );
 
                 var simulatedEmailBody = "<div style='font-family: Arial, Verdana; font-size: 10px; font-weight: bold'>" +
                                         "This mail would have been sent to:" +
@@ -82,7 +82,7 @@ namespace CapeCode.Logging.Emails {
 
         public void SendEmail( Email email ) {
 
-            Logger.LogTrace( "SendMail", "Sending {0}", email.ToString() );
+            Logger.LogTrace( $"Sending {email.ToString()}" );
 
             if ( EmailSenderConfiguration.IsDisabled ) {
                 // used in unit-tests to prevent mass email sending...
@@ -91,7 +91,7 @@ namespace CapeCode.Logging.Emails {
 
             IList<MailMessage> mailMessages;
             if ( EmailSenderConfiguration.InSimulationMode ) {
-                Logger.LogWarning( "SendMail", "InSimulation Mode -> Changing To: {0} / CC: null / BCC: null", EmailSenderConfiguration.AdministratorEmailAddresses.ToSeparatedString( a => a ) );
+                Logger.LogWarning( $"InSimulation Mode -> Changing To: {EmailSenderConfiguration.AdministratorEmailAddresses.ToSeparatedString( a => a )} / CC: null / BCC: null" );
 
                 var simulatedEmailBody = "<div style='font-family: Arial, Verdana; font-size: 10px; font-weight: bold'>" +
                                         "This mail would have been sent to:" +
@@ -114,6 +114,7 @@ namespace CapeCode.Logging.Emails {
 
         private void SendMailMessages( IEnumerable<MailMessage> mailMessages ) {
             if ( !TrySendMailMessages( mailMessages ) ) {
+                System.Threading.Thread.Sleep( 1000 );
                 TrySendMailMessages( mailMessages, true );
             }
         }
@@ -135,8 +136,8 @@ namespace CapeCode.Logging.Emails {
                 foreach ( var mailMessage in mailMessages ) {
                     this.SendSmtpMailMessages( client, mailMessage );
                 }
-                this.Logger.LogTrace( "SendMailMessages", "Successfully finished" );
-            } catch ( SmtpException e ) {
+                this.Logger.LogTrace( "Successfully finished" );
+            } catch ( Exception e ) {
                 Exception innerMostException = e;
                 while ( innerMostException.InnerException != null ) {
                     innerMostException = innerMostException.InnerException;
@@ -147,8 +148,6 @@ namespace CapeCode.Logging.Emails {
                 } else {
                     throw new EmailSenderException( "Email delivery failed because of an SMTP server error: " + innerMostException.Message, e );
                 }
-            } catch ( Exception e ) {
-                throw new EmailSenderException( "Email delivery failed because of an unexpected error: " + e.Message, e );
             }
             return true;
         }
