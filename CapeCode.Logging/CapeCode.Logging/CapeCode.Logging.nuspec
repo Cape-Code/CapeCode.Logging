@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>CapeCode.Logging</id>
+    <version>$Version$</version>
+    <title>CapeCode.Logging</title>
+    <authors>Cape Code Gmbh &amp; Co. KG</authors>
+    <owners>Cape Code Gmbh &amp; Co. KG</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Description</description>
+    <copyright>Copyright © Cape Code Gmbh &amp; Co. KG 2017</copyright>
+    <dependencies>
+      <dependency id="CommonServiceLocator" version="1.3" />
+      <dependency id="CapeCode.DependencyInjection" version="1.2.0" />
+      <dependency id="CapeCode.Logging.Interfaces" version="$Version$" />
+    </dependencies>    
+  </metadata>
+</package>
